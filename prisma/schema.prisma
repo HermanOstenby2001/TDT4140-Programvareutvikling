@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+
+model Icebreaker {
+    icebreakerID                Int     @id @default(autoincrement())
+    title                       String  @unique
+    description                 String
+    duration                    Int
+    difficulty                  Int  
+    publishdate                 DateTime @default(now())
+    score                       IcebreakerScore[]
+    userID                      String
+    user                        User      @relation(fields: [userID], references: [username])
+    favoured                    User[]  @relation("favouredBy")
+    category                    Int
+    categorized                 Category @relation(fields: [category], references: [categoryID])
+    playlist                    Playlist[]   @relation("consistsOf")
+    reviews                     Review[]
+}
+
+model IcebreakerScore{
+    icebreakerScoreID           Int @id @default(autoincrement())
+    icebreaker                  Int 
+    userID                      String 
+    score                       Int     
+    user                        User    @relation(fields: [userID], references: [username])
+    scoredOn                    Icebreaker @relation(fields: [icebreaker], references: [icebreakerID])
+}
+
+model Category {
+    categoryID  Int             @id @default(autoincrement())
+    name        String          @unique
+    icebreakers Icebreaker[]
+}
+
+model User {
+    username                    String            @id @map("username")
+    password                    String
+    admin                       Role              @default(USER)
+    icebreakers                 Icebreaker[]
+    scores                      IcebreakerScore[] 
+    favouredIcebreakers         Icebreaker[]      @relation("favouredBy")             
+    playlists                   Playlist[]
+    reports                     Report[]   
+    reviews                     Review[]
+
+}
+
+model Playlist {
+    playlistID                  Int           @id @default(autoincrement()) @map("playlistID")
+    title                       String           @unique
+    user                        String
+    playlistMadeBy              User          @relation(fields: [user], references: [username])
+    icebreakers                 Icebreaker[]     @relation("consistsOf")
+}
+
+model Report {
+    reportID        Int         @id @default(autoincrement())
+    title           String      @unique
+    admin           String
+    reportMadeBy    User        @relation(fields: [admin], references: [username])
+    review          Int
+    regarding       Review      @relation(fields: [review], references: [reviewID])
+}
+
+model Review {
+    reviewID    Int             @id @default(autoincrement())
+    title       String      
+    description String  
+    reports     Report[]
+    user        String
+    reviewedBy  User            @relation(fields: [user], references: [username])
+    icebreaker  Int
+    reviewedOn  Icebreaker      @relation(fields: [icebreaker], references: [icebreakerID])
+}
+
+enum Role {
+    USER 
+    ADMIN 
+}

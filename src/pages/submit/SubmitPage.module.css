@@ -1,0 +1,17 @@
+.inputs {
+    border-radius: 6px;
+    flex: 2;
+    padding: 1em;
+}
+
+.inputDivs {
+    display: flex;
+    padding: 0.5em 0;
+    flex-direction: column;
+}
+
+.labels {
+    flex: 1;
+    font-size: 18px;
+    padding: 1em 1em .5em 0;
+}
